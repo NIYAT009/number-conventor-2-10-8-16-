@@ -214,7 +214,7 @@
                 return;
             }
 
-            // Конвертируем в десятичную систему
+            
             let decimalValue;
             switch(sourceType) {
                 case 'binary':
@@ -231,12 +231,12 @@
                     break;
             }
 
-            // Проверяем на NaN
+           
             if (isNaN(decimalValue)) {
                 return;
             }
 
-            // Конвертируем из десятичной в остальные системы
+           
             if (sourceType !== 'binary') {
                 inputs.binary.value = decimalValue.toString(2);
             }
@@ -260,7 +260,7 @@
             clearAllFields();
         }
 
-        // Добавляем обработчики событий
+        
         Object.keys(inputs).forEach(type => {
             inputs[type].addEventListener('input', function(e) {
                 const value = e.target.value.trim();
@@ -275,7 +275,7 @@
                 }
             });
 
-            // Очистка при фокусе
+            
             inputs[type].addEventListener('focus', function() {
                 if (this.value !== '') {
                     clearAllFields();
@@ -283,7 +283,7 @@
             });
         });
 
-        // Преобразование hex в верхний регистр
+      
         inputs.hexadecimal.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
             e.target.value = e.target.value.toUpperCase();
