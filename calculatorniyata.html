@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор систем счисления</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FF9A8B 0%, #FF9A8B 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .converter-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .clear-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: #ff5252;
+        }
+
+        .info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 10px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .error {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .base-label {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Калькулятор систем счисления</h1>
+        
+        <div class="converter-group">
+            <label>
+                Двоичная 
+                
+            </label>
+            <div class="input-group">
+                <input type="text" id="binary" placeholder="Введите число (например: 1010)">
+                <div class="error" id="binary-error">Допустимы только 0 и 1</div>
+            </div>
+        </div>
+
+        <div class="converter-group">
+            <label>                  
+                Восьмеричная 
+                
+            </label>
+            <div class="input-group">
+                <input type="text" id="octal" placeholder="Введите число (например: 12)">
+                <div class="error" id="octal-error">Допустимы цифры от 0 до 7</div>
+            </div>
+        </div>
+
+        <div class="converter-group">
+            <label>
+                Десятичная 
+                
+            </label>
+            <div class="input-group">
+                <input type="text" id="decimal" placeholder="Введите число (например: 10)">
+                <div class="error" id="decimal-error">Допустимы цифры от 0 до 9</div>
+            </div>
+        </div>
+
+        <div class="converter-group">
+            <label>
+                Шестнадцатеричная 
+                
+            </label>
+            <div class="input-group">
+                <input type="text" id="hexadecimal" placeholder="Введите число (например: A)">
+                <div class="error" id="hex-error">Допустимы цифры 0-9 и буквы A-F</div>
+            </div>
+        </div>
+
+        <button class="clear-btn" onclick="clearAll()" style="position: static; transform: none; width: 100%; margin-top: 10px; padding: 12px;">
+            Очистить всё
+        </button>
+
+        <div class="info">
+            💡 Введите число в любое поле, и оно автоматически конвертируется в остальные системы счисления
+        </div>
+    </div>
+
+    <script>
+        const inputs = {
+            binary: document.getElementById('binary'),
+            octal: document.getElementById('octal'),
+            decimal: document.getElementById('decimal'),
+            hexadecimal: document.getElementById('hexadecimal')
+        };
+
+        const errors = {
+            binary: document.getElementById('binary-error'),
+            octal: document.getElementById('octal-error'),
+            decimal: document.getElementById('decimal-error'),
+            hexadecimal: document.getElementById('hex-error')
+        };
+
+        const validators = {
+            binary: /^[01]+$/,
+            octal: /^[0-7]+$/,
+            decimal: /^[0-9]+$/,
+            hexadecimal: /^[0-9A-Fa-f]+$/
+        };
+
+        function validateInput(type, value) {
+            if (value === '') return true;
+            return validators[type].test(value);
+        }
+
+        function convertFrom(sourceType, value) {
+            if (value === '') {
+                clearAllFields();
+                return;
+            }
+
+            // Конвертируем в десятичную систему
+            let decimalValue;
+            switch(sourceType) {
+                case 'binary':
+                    decimalValue = parseInt(value, 2);
+                    break;
+                case 'octal':
+                    decimalValue = parseInt(value, 8);
+                    break;
+                case 'decimal':
+                    decimalValue = parseInt(value, 10);
+                    break;
+                case 'hexadecimal':
+                    decimalValue = parseInt(value, 16);
+                    break;
+            }
+
+            // Проверяем на NaN
+            if (isNaN(decimalValue)) {
+                return;
+            }
+
+            // Конвертируем из десятичной в остальные системы
+            if (sourceType !== 'binary') {
+                inputs.binary.value = decimalValue.toString(2);
+            }
+            if (sourceType !== 'octal') {
+                inputs.octal.value = decimalValue.toString(8);
+            }
+            if (sourceType !== 'decimal') {
+                inputs.decimal.value = decimalValue.toString(10);
+            }
+            if (sourceType !== 'hexadecimal') {
+                inputs.hexadecimal.value = decimalValue.toString(16).toUpperCase();
+            }
+        }
+
+        function clearAllFields() {
+            Object.values(inputs).forEach(input => input.value = '');
+            Object.values(errors).forEach(error => error.style.display = 'none');
+        }
+
+        function clearAll() {
+            clearAllFields();
+        }
+
+        // Добавляем обработчики событий
+        Object.keys(inputs).forEach(type => {
+            inputs[type].addEventListener('input', function(e) {
+                const value = e.target.value.trim();
+                
+                if (validateInput(type, value)) {
+                    errors[type].style.display = 'none';
+                    e.target.style.borderColor = '#e0e0e0';
+                    convertFrom(type, value);
+                } else if (value !== '') {
+                    errors[type].style.display = 'block';
+                    e.target.style.borderColor = '#ff6b6b';
+                }
+            });
+
+            // Очистка при фокусе
+            inputs[type].addEventListener('focus', function() {
+                if (this.value !== '') {
+                    clearAllFields();
+                }
+            });
+        });
+
+        // Преобразование hex в верхний регистр
+        inputs.hexadecimal.addEventListener('input', function(e) {
+            const cursorPosition = e.target.selectionStart;
+            e.target.value = e.target.value.toUpperCase();
+            e.target.setSelectionRange(cursorPosition, cursorPosition);
+        });
+    </script>
+</body>
+</html>
